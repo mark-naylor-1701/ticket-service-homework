@@ -5,13 +5,7 @@
 package com.walmart.homework;
 
 public class SeatNumber extends TypeExtender<Integer> {
-    private Integer seatNumber;
-
     public SeatNumber(Integer seatNumber) {
-        this.seatNumber = seatNumber;
-    }
-
-    public Integer value() {
-        return seatNumber;
+        super(seatNumber);
     }
 }
