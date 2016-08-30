@@ -26,11 +26,7 @@ object Driver extends App {
   printLabel("testCreateVenue")
   testCreateVenue
 
-
-  // -- Support functions
-  def showSeats(venue: Venue) = println("Available seats: " + venue.numSeatsAvailable(noneInt))
-
-  // -- Test funtions
+  // -- Test functions
 
   def testCreateSeat() {
     // Seat depends on having a good level.
@@ -47,7 +43,7 @@ object Driver extends App {
     assert(seat.getLevel == level, s"level ${seat.getLevel} != ${level}")
     assert(seat.getRowNumber == rowNumber, s"Field ${seat.getRowNumber} != ${rowNumber}")
     assert(seat.getSeatNumber == seatNumber, s"Field ${seat.getSeatNumber} != ${seatNumber}")
-  }
+  } // testCreateSeat()
 
   def testCreateLevel() {
     val name = new LevelName("Test Name")
@@ -61,7 +57,7 @@ object Driver extends App {
     assert(level.getPrice == price, s"Field ${level.getPrice} != ${price}")
     assert(level.getId == id, s"Field ${level.getId} != ${id}")
     assert(level.numSeatsAvailable == rows * seats, s"Field ${level.numSeatsAvailable} != ${rows * seats}")
-  }
+  } // testCreateLevel()
 
   def testCreateVenue() {
     val tv = Venue.testingVenue
@@ -69,7 +65,10 @@ object Driver extends App {
 
     val initialSeats = tv.numSeatsAvailable(noneInt)
     assert(initialSeats == 40, s"initial seats ${initialSeats} != 40")
-  }
+
+    val holdCount = tv.holdCount()
+    assert(holdCount == 0, s"seat holds ${holdCount} != ${0}")
+  } // testCreateVenue()
 
   def testCreateSeatHold() {
     val none: Optional[Collection[Seat]] = Optional.empty()
@@ -85,9 +84,9 @@ object Driver extends App {
 
     val resEmail = sh.getCustomerEmail
     assert(resEmail == email, s"Failure on SeatHold getCustomerEmail, ${resEmail} != ${email}\n")
+  } // testCreateSeatHold()
 
-  }
-
+  @deprecated("Being phase out", "2016-08-30 13:28")
   def test1() {
     val testVenue = Venue.testingVenue
     showSeats(testVenue)
@@ -125,6 +124,9 @@ object Driver extends App {
 
   } // test1()
 
+  // -- Support functions
+  def showSeats(venue: Venue) = println("Available seats: " + venue.numSeatsAvailable(noneInt))
+
 } // Driver
 
 
@@ -136,8 +138,7 @@ object Data {
   val noneInt: Optional[java.lang.Integer] = Optional.empty()
 
   val email = "mark.naylor.1701@gmail.com"
-
-} // Data
+} // Data()
 
 object Functions {
   def someInt(i: java.lang.Integer): Optional[java.lang.Integer] = Optional.of(i)
