@@ -19,6 +19,7 @@ public class Venue implements TicketService {
 
     // *TODO* make this private
     /*private*/ public ArrayList<Level> levels;
+    private ArrayList<SeatHold> holds = new ArrayList<SeatHold>();
 
     public Venue () {
         levels = new ArrayList<Level>();
@@ -27,7 +28,6 @@ public class Venue implements TicketService {
     public Venue (Collection<Level> collection) {
         levels = new ArrayList<Level>(collection);
     } // Venue() - constructor
-
 
     public static Venue defaultVenue() {
         Level l1 = new Level(1, new LevelName("Orchestra"), new MonetaryAmount(100.00), 25, 50);
@@ -71,7 +71,7 @@ public class Venue implements TicketService {
             .sum();
     } // numSeatsAvailable()
 
-    public Optional<SeatHold> findAndHoldSeats(int numSeats,
+    public synchronized Optional<SeatHold> findAndHoldSeats(int numSeats,
                                      Optional<Integer> minLevel,
                                      Optional<Integer> maxLevel,
                                      String customerEmail) {
@@ -89,9 +89,6 @@ public class Venue implements TicketService {
         int levelCount = desiredLevels.size();
         int seatCount = numSeatsAvailable(desiredLevels);
 
-        // System.out.println("Acceptable levels:" + levelCount);
-        // System.out.println("Available seats:  " + seatCount);
-
         if (numSeats > seatCount) { return Optional.empty(); }
 
         SeatHold seatHold = new SeatHold(customerEmail, Optional.empty());
@@ -106,11 +103,14 @@ public class Venue implements TicketService {
             numSeats -= seats.size();
         }
 
-        System.out.println("# of seats:    " + numSeats);
-        System.out.println("more iterator? " + iterator.hasNext());
+        holds.add(seatHold);
 
         return Optional.of(seatHold);
     } // findAndHoldSeats()
+
+    public int holdCount() {
+        return holds.size();
+    }
 
     public void releaseHold(SeatHold seatHold) {
         Collection<Seat> seats = seatHold.getSeats();

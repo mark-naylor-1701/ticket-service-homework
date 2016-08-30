@@ -18,7 +18,7 @@ public class SeatHold {
 
     private int id;
     private String customerEmail;
-    private Collection<Seat> seats  = new ArrayList<Seat>();
+    private ArrayList<Seat> seats  = new ArrayList<Seat>();
     private long expiration;
 
     public SeatHold (String customerEmail, Optional<Collection<Seat>> seats) {
@@ -42,7 +42,7 @@ public class SeatHold {
         this.seats.addAll(seats);
     } // add()
 
-    public Collection getSeats() {
+    public Collection<Seat> getSeats() {
         return seats;
     } // getSets()
 
