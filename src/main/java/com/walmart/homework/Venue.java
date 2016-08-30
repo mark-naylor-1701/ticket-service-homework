@@ -7,9 +7,12 @@ package com.walmart.homework;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,7 +22,10 @@ public class Venue implements TicketService {
 
     // *TODO* make this private
     /*private*/ public ArrayList<Level> levels;
-    private ArrayList<SeatHold> holds = new ArrayList<SeatHold>();
+    //private ArrayList<SeatHold> holds = new ArrayList<SeatHold>();
+    //private List<SeatHold> holds = Collections.synchronizedList(new ArrayList<SeatHold>());
+    private CopyOnWriteArrayList<SeatHold> holds = new CopyOnWriteArrayList<SeatHold>();
+
     private Optional<Sweeper> sweeper = Optional.empty();
 
     public Venue () {
@@ -110,14 +116,20 @@ public class Venue implements TicketService {
             numSeats -= seats.size();
         }
 
-        holds.add(seatHold);
+        synchronized (holds) {
+            holds.add(seatHold);
+        }
 
         return Optional.of(seatHold);
     } // findAndHoldSeats()
 
     public int holdCount() {
-        return holds.size();
-    } // holdCount()
+        //return holds.size();
+        int size;
+        synchronized (holds) { size = holds.size(); }
+        return size;
+         // holdCount()
+    }
 
     public void releaseHold(SeatHold seatHold) {
         Collection<Seat> seats = seatHold.getSeats();
@@ -126,7 +138,9 @@ public class Venue implements TicketService {
         synchronized (this){
             // Each seat needs to tell its parent level to release it.
             seats.stream().forEach((Seat s) -> s.getLevel().releaseHold(s));
-            holds.remove(seatHold);
+            synchronized (holds) {
+                holds.remove(seatHold);
+            }
         }
     } // releaseHold
 
@@ -135,11 +149,27 @@ public class Venue implements TicketService {
     } // finalize
 
 
+    protected void expire() {
+        long now = (new Date()).getTime();
+
+        synchronized (holds) {
+            holds.stream()
+                .filter(hold -> now > hold.getExpiration())
+                .forEach(hold -> releaseHold(hold));
+        }
+    }
+
+    protected void expireSeats(long now) {
+        
+    }
+
+
     private class Sweeper extends Thread {
         public void run() {
             while (true) {
                 try {
-                    sleep(Defaults.SEATHOLD_LIFESPAN);
+                    sleep(1000); // one second
+                    expire();
                 }
                 catch (InterruptedException e) {
                     break;
