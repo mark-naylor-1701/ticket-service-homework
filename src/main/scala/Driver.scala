@@ -70,7 +70,30 @@ object Driver extends App {
       assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
       intRes = tv.holdCount()
       assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
-      
+
+
+      // Hold #3
+      // meet section 1 capacity
+      seatRequest = 5
+      currentCap -= seatRequest
+      holdCount += 1
+      val seatHold3 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
+      assert(seatHold3.isPresent(), s"seatHold3 should not be empty.\n")
+      intRes = tv.numSeatsAvailable(noneInt)
+      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
+      intRes = tv.holdCount()
+      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
+
+      // Force pause, venue should release the hold
+      Thread.sleep(Defaults.SEATHOLD_LIFESPAN * 4)
+
+      currentCap += seatRequest
+      holdCount -= 1
+      intRes = tv.numSeatsAvailable(noneInt)
+      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
+      intRes = tv.holdCount()
+      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
+
 
     }
     finally {
