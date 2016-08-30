@@ -26,7 +26,57 @@ object Driver extends App {
   printLabel("testCreateVenue")
   testCreateVenue
 
+  printLabel("testSeatHolds")
+  testSeatHolds
+
+  //exit(0)
+
   // -- Test functions
+
+  def testSeatHolds() {
+    var tv: Venue = null
+    var seatRequest = 0
+
+    try {
+      tv = Venue.testingVenue
+      val initialCapacity = tv.numSeatsAvailable(noneInt)
+      var currentCap = initialCapacity
+      var intRes = 0
+      var holdCount = 0
+
+      // Hold #1
+      // exceed section 1 capacity
+      seatRequest = 15
+      val seatHold1 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
+      assert(!seatHold1.isPresent(), s"seatHold1 should be empty.\n")
+
+      // Hold #2
+      // meet section 1 capacity
+      seatRequest = 5
+      currentCap -= seatRequest
+      holdCount += 1
+      val seatHold2 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
+      assert(seatHold2.isPresent(), s"seatHold2 should not be empty.\n")
+      intRes = tv.numSeatsAvailable(noneInt)
+      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
+      intRes = tv.holdCount()
+      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
+
+      // release the hold
+      currentCap += seatRequest
+      holdCount -= 1
+      tv.releaseHold(seatHold2.get)
+      intRes = tv.numSeatsAvailable(noneInt)
+      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
+      intRes = tv.holdCount()
+      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
+      
+
+    }
+    finally {
+      if (tv != null) { tv.close }
+    }
+  } // testSeatHolds()
 
   def testCreateSeat() {
     // Seat depends on having a good level.
@@ -60,14 +110,20 @@ object Driver extends App {
   } // testCreateLevel()
 
   def testCreateVenue() {
-    val tv = Venue.testingVenue
-    assert(tv != null, s"No Venue returned")
+    var tv: Venue = null
+    try {
+      tv = Venue.testingVenue
+      assert(tv != null, s"No Venue returned")
 
-    val initialSeats = tv.numSeatsAvailable(noneInt)
-    assert(initialSeats == 40, s"initial seats ${initialSeats} != 40")
+      val initialSeats = tv.numSeatsAvailable(noneInt)
+      assert(initialSeats == 40, s"initial seats ${initialSeats} != 40")
 
-    val holdCount = tv.holdCount()
-    assert(holdCount == 0, s"seat holds ${holdCount} != ${0}")
+      val holdCount = tv.holdCount()
+      assert(holdCount == 0, s"seat holds ${holdCount} != ${0}")
+    }
+    finally {
+      if (tv != null) { tv.close }
+    }
   } // testCreateVenue()
 
   def testCreateSeatHold() {
