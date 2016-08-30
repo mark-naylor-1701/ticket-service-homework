@@ -26,48 +26,47 @@ object Driver extends App {
 
   println("Hello, Walmart testing world.")
 
+  test1
 
-  // List(venue, testVenue) map { venue =>
-  //   {
-  //     println("Level 1 seats: "  + venue.numSeatsAvailable(someInt(1)))
-  //     println("All seats:     "  + venue.numSeatsAvailable(noneInt))
-  //   }}
+  // -- Support functions
+  def showSeats(venue: Venue) = println("Available seats: " + venue.numSeatsAvailable(noneInt))
 
-  // List(venue, testVenue).map(venue => println("Level 5 seats: "  + venue.numSeatsAvailable(Optional.of(new Integer(5)))))
+  // -- Test funtions
 
-  def showSeats = println("Available seats: " + testVenue.numSeatsAvailable(noneInt))
+  def test1() {
+    showSeats(testVenue)
 
-  showSeats
+    println("\n Any seats: " + testVenue.findAndHoldSeats(15, noneInt, noneInt, email))
 
-  println("\n Any seats: " + testVenue.findAndHoldSeats(15, noneInt, noneInt, email))
+    showSeats(testVenue)
 
-  showSeats
+    println("\nTry best level: " + testVenue.findAndHoldSeats(4, noneInt, someInt(1), email))
 
-  println("\nTry best level: " + testVenue.findAndHoldSeats(4, noneInt, someInt(1), email))
+    showSeats(testVenue)
 
-  showSeats
+    println("\nHow about cheap seats? " + testVenue.findAndHoldSeats(5, someInt(4), noneInt, email))
 
-  println("\nHow about cheap seats? " + testVenue.findAndHoldSeats(5, someInt(4), noneInt, email))
+    showSeats(testVenue)
 
-  showSeats
+    val cheapHold =  testVenue.findAndHoldSeats(5, someInt(4), noneInt, email)
 
-  val cheapHold =  testVenue.findAndHoldSeats(5, someInt(4), noneInt, email)
+    println("\nHow about cheap seats? " + cheapHold)
 
-  println("\nHow about cheap seats? " + cheapHold)
+    showSeats(testVenue)
 
-  showSeats
+    println("\nHow about cheap seats? " + testVenue.findAndHoldSeats(5, someInt(4), noneInt, email))
 
-  println("\nHow about cheap seats? " + testVenue.findAndHoldSeats(5, someInt(4), noneInt, email))
+    showSeats(testVenue)
 
-  showSeats
+    println("Release hold.")
 
-  println("Release hold.")
+    if (cheapHold.isPresent())
+      testVenue.releaseHold(cheapHold.get())
 
-  if (cheapHold.isPresent())
-    testVenue.releaseHold(cheapHold.get())
+    println
 
-  println
-
-  showSeats
+    showSeats(testVenue)
+    
+  } // test1()
 
 }
