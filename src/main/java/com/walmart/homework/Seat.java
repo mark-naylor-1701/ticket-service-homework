@@ -7,28 +7,29 @@ package com.walmart.homework;
 public class Seat {
     private RowNumber rowNumber;
     private SeatNumber seatNumber;
-    private MonetaryAmount price;
-    private LevelName level;
+    private Level level;
 
     public Seat (RowNumber rowNumber,
                  SeatNumber seatNumber,
-                 MonetaryAmount price,
-                 LevelName level) {
+                 Level level) {
         this.rowNumber = rowNumber;
         this.seatNumber = seatNumber;
-        this.price = price;
         this.level = level;
-    }
+    } // Seat() - constructor
 
     public RowNumber getRowNumber() {
         return rowNumber;
-    }
+    } // getRowNumber()
 
     public SeatNumber getSeatNumber() {
         return seatNumber;
-    }
+    } // getSeatNumber()
 
     public MonetaryAmount getPrice() {
-        return price;
-    }
+        return level.getPrice();
+    } // getPrice()
+
+    public Level getLevel() {
+        return level;
+    } // getLevel()
 }

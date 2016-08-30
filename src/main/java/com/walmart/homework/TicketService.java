@@ -8,4 +8,8 @@ import java.util.Optional;
 
 public interface TicketService {
     int numSeatsAvailable(Optional<Integer> venueLevel);
+    Optional<SeatHold> findAndHoldSeats(int numSeats,
+                              Optional<Integer> minLevel,
+                              Optional<Integer> maxLevel,
+                              String customerEmail);
 }
