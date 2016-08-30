@@ -20,14 +20,23 @@ public class Venue implements TicketService {
     // *TODO* make this private
     /*private*/ public ArrayList<Level> levels;
     private ArrayList<SeatHold> holds = new ArrayList<SeatHold>();
+    private Optional<Sweeper> sweeper = Optional.empty();
 
     public Venue () {
         levels = new ArrayList<Level>();
+        startSweeper();
     } // Venue() - constructor
 
     public Venue (Collection<Level> collection) {
         levels = new ArrayList<Level>(collection);
+        startSweeper();
     } // Venue() - constructor
+
+    private void startSweeper() {
+        Sweeper thread = new Sweeper();
+        thread.start();
+        sweeper = Optional.of(thread);
+    } // startSweeper
 
     public static Venue defaultVenue() {
         Level l1 = new Level(1, new LevelName("Orchestra"), new MonetaryAmount(100.00), 25, 50);
@@ -54,12 +63,10 @@ public class Venue implements TicketService {
                 .map(level -> level.numSeatsAvailable())
                 .findFirst()
                 .orElse(0);
-            //System.out.println(result);
             return result;
         } else {
             int result = levelStream.mapToInt(level -> level.numSeatsAvailable())
                 .sum();
-            //System.out.println(result);
             return result;
         }
 
@@ -110,7 +117,7 @@ public class Venue implements TicketService {
 
     public int holdCount() {
         return holds.size();
-    }
+    } // holdCount()
 
     public void releaseHold(SeatHold seatHold) {
         Collection<Seat> seats = seatHold.getSeats();
@@ -119,7 +126,28 @@ public class Venue implements TicketService {
         synchronized (this){
             // Each seat needs to tell its parent level to release it.
             seats.stream().forEach((Seat s) -> s.getLevel().releaseHold(s));
+            holds.remove(seatHold);
         }
     } // releaseHold
+
+    public void close() {
+        sweeper.ifPresent(thread -> thread.interrupt());
+    } // finalize
+
+
+    private class Sweeper extends Thread {
+        public void run() {
+            while (true) {
+                try {
+                    sleep(2000);  // 2 seconds
+                }
+                catch (InterruptedException e) {
+                    break;
+                }
+
+                System.out.println(getName() +" wake and process");
+            }
+        }
+    } // private class Sweeper
 
 }
