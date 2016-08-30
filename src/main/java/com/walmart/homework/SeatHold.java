@@ -6,16 +6,20 @@ package com.walmart.homework;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 
 
 public class SeatHold {
-    static int lastId = 0;
+    private static final int lifespanSeconds = 5;
+
+    private static int lastId = 0;
 
     private int id;
     private String customerEmail;
     private Collection<Seat> seats  = new ArrayList<Seat>();
+    private long expiration;
 
     public SeatHold (String customerEmail, Optional<Collection<Seat>> seats) {
         synchronized(this) {
@@ -26,6 +30,8 @@ public class SeatHold {
         if (seats.isPresent()) {
             this.seats.addAll(seats.get());
         }
+
+        expiration = (new Date()).getTime() + (lifespanSeconds * 1000);
     } // SeatHold() - constructor
 
     public void add(Seat seat) {
@@ -47,6 +53,10 @@ public class SeatHold {
     public String getCustomerEmail() {
         return customerEmail;
     } // getCustomerEmail()
+
+    public long getExpiration() {
+        return expiration;
+    }
 
     private int createId() {
         ++lastId;
