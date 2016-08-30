@@ -12,8 +12,6 @@ import java.util.Optional;
 
 
 public class SeatHold {
-    private static final int lifespanSeconds = 5;
-
     private static int lastId = 0;
 
     private int id;
@@ -31,7 +29,7 @@ public class SeatHold {
             this.seats.addAll(seats.get());
         }
 
-        expiration = (new Date()).getTime() + (lifespanSeconds * 1000);
+        expiration = (new Date()).getTime() + Defaults.SEATHOLD_LIFESPAN;
     } // SeatHold() - constructor
 
     public void add(Seat seat) {

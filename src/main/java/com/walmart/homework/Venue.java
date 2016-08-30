@@ -139,7 +139,7 @@ public class Venue implements TicketService {
         public void run() {
             while (true) {
                 try {
-                    sleep(2000);  // 2 seconds
+                    sleep(Defaults.SEATHOLD_LIFESPAN);
                 }
                 catch (InterruptedException e) {
                     break;
