@@ -26,6 +26,18 @@ object Driver extends App {
   printLabel("testCreateVenue")
   testCreateVenue
 
+
+  printLabel("testSeatHoldExceed")
+  testSeatHoldExceed
+
+
+  printLabel("testSeatHoldMeetCapacity")
+  testSeatHoldMeetCapacity
+
+
+  printLabel("testSeatHoldMeetCapacityHardRelease")
+  testSeatHoldMeetCapacityHardRelease
+
   printLabel("testSeatHolds")
   testSeatHolds
 
@@ -33,6 +45,72 @@ object Driver extends App {
 
   // -- Test functions
 
+  // ----------------------------------------
+  // Seat Hold tests
+
+  def testSeatHoldExceed() {
+    var tv: Option[Venue] = None
+
+    try {
+      val jtv = Venue.testingVenue
+      val seatRequest = 15
+      tv = Some(jtv)
+      val capacity = jtv.numSeatsAvailable(noneInt)
+
+      val seatHold = jtv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
+      assert(!seatHold.isPresent(), s"seatHold ${seatHold} should be empty.")
+    } finally {
+      tv.map(_.close)
+    }
+  } // testSeatHoldExceed()
+
+
+  def testSeatHoldMeetCapacity() {
+    var tv: Option[Venue] = None
+
+    try {
+      val jtv = Venue.testingVenue
+      val seatRequest = 5
+      tv = Some(jtv)
+      val capacity = jtv.numSeatsAvailable(noneInt)
+      val expected = capacity - seatRequest
+
+      jtv.findAndHoldSeats(seatRequest, noneInt, toJava(Some(1)), email)
+      val seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"${seatsAvail} != ${expected}.\n")
+    } finally {
+      tv.map(_.close)
+    }
+  } // testSeatHoldMeetCapacity()
+
+
+  def testSeatHoldMeetCapacityHardRelease() {
+    var tv: Option[Venue] = None
+
+    try {
+      val jtv = Venue.testingVenue
+      val seatRequest = 5
+      tv = Some(jtv)
+      val capacity = jtv.numSeatsAvailable(noneInt)
+      val expected = capacity - seatRequest
+
+      val seatHold = toScala(jtv.findAndHoldSeats(seatRequest, noneInt, toJava(Some(1)), email))
+      var seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"${seatsAvail} != ${expected}.\n")
+
+      //jtv.releaseHold(seatHold)
+      seatHold.map(jtv.releaseHold(_))
+      seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == capacity, s"${seatsAvail} != ${capacity}.\n")
+    } finally {
+      tv.map(_.close)
+    }
+  } // testSeatHoldMeetCapacityHardRelease()
+
+
+
+
+  @deprecated("Break into smaller tests.", "2016-08-31")
   def testSeatHolds() {
     var tv: Venue = null
     var seatRequest = 0
@@ -46,30 +124,30 @@ object Driver extends App {
 
       // Hold #1
       // exceed section 1 capacity
-      seatRequest = 15
-      val seatHold1 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
-      assert(!seatHold1.isPresent(), s"seatHold1 should be empty.\n")
+      // seatRequest = 15
+      // val seatHold1 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
+      // assert(!seatHold1.isPresent(), s"seatHold1 should be empty.\n")
 
       // Hold #2
       // meet section 1 capacity
-      seatRequest = 5
-      currentCap -= seatRequest
-      holdCount += 1
-      val seatHold2 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
-      assert(seatHold2.isPresent(), s"seatHold2 should not be empty.\n")
-      intRes = tv.numSeatsAvailable(noneInt)
-      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
-      intRes = tv.holdCount()
-      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
+      // seatRequest = 5
+      // currentCap -= seatRequest
+      // holdCount += 1
+      // val seatHold2 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
+      // assert(seatHold2.isPresent(), s"seatHold2 should not be empty.\n")
+      // intRes = tv.numSeatsAvailable(noneInt)
+      // assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
+      // intRes = tv.holdCount()
+      // assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
 
-      // release the hold
-      currentCap += seatRequest
-      holdCount -= 1
-      tv.releaseHold(seatHold2.get)
-      intRes = tv.numSeatsAvailable(noneInt)
-      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
-      intRes = tv.holdCount()
-      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
+      // // release the hold
+      // currentCap += seatRequest
+      // holdCount -= 1
+      // tv.releaseHold(seatHold2.get)
+      // intRes = tv.numSeatsAvailable(noneInt)
+      // assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
+      // intRes = tv.holdCount()
+      // assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
 
 
       // Hold #3
@@ -100,6 +178,8 @@ object Driver extends App {
       if (tv != null) { tv.close }
     }
   } // testSeatHolds()
+
+  // ----------------------------------------
 
   def testCreateSeat() {
     // Seat depends on having a good level.
@@ -205,6 +285,15 @@ object Driver extends App {
 
   // -- Support functions
   def showSeats(venue: Venue) = println("Available seats: " + venue.numSeatsAvailable(noneInt))
+
+  def toScala[T](t: Optional[T]): Option[T] = {
+    if (t.isPresent) Some(t.get) else None
+  } // toScala
+
+  def toJava[T](t: Option[T]): Optional[T] = {
+    //Optional[T].of(t.getOrElse( {return Optional.empty()} ))
+    Optional.of(t.getOrElse( {return Optional.empty()} ))
+  } // toJava
 
 } // Driver
 
