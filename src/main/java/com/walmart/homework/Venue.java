@@ -20,12 +20,8 @@ import java.util.stream.Stream;
 
 public class Venue implements TicketService {
 
-    // *TODO* make this private
-    /*private*/ public ArrayList<Level> levels;
-    //private ArrayList<SeatHold> holds = new ArrayList<SeatHold>();
-    //private List<SeatHold> holds = Collections.synchronizedList(new ArrayList<SeatHold>());
+    private ArrayList<Level> levels;
     private CopyOnWriteArrayList<SeatHold> holds = new CopyOnWriteArrayList<SeatHold>();
-
     private Optional<Sweeper> sweeper = Optional.empty();
 
     public Venue () {
@@ -65,7 +61,8 @@ public class Venue implements TicketService {
     public int numSeatsAvailable(Optional<Integer> venueLevel) {
         Stream<Level> levelStream = levels.stream();
         if (venueLevel.isPresent()) {
-            int result = levelStream.filter(level -> level.getId() == venueLevel.get())
+            int result =
+                levelStream.filter(level -> level.getId() == venueLevel.get())
                 .map(level -> level.numSeatsAvailable())
                 .findFirst()
                 .orElse(0);
@@ -124,12 +121,11 @@ public class Venue implements TicketService {
     } // findAndHoldSeats()
 
     public int holdCount() {
-        //return holds.size();
-        int size;
-        synchronized (holds) { size = holds.size(); }
-        return size;
-         // holdCount()
-    }
+        return holds.size();
+        // int size;
+        // synchronized (holds) { size = holds.size(); }
+        // return size;
+    } // holdCount()
 
     public void releaseHold(SeatHold seatHold) {
         Collection<Seat> seats = seatHold.getSeats();
@@ -142,11 +138,11 @@ public class Venue implements TicketService {
                 holds.remove(seatHold);
             }
         }
-    } // releaseHold
+    } // releaseHold()
 
     public void close() {
         sweeper.ifPresent(thread -> thread.interrupt());
-    } // finalize
+    } // close()
 
 
     protected void expire() {
@@ -157,11 +153,7 @@ public class Venue implements TicketService {
                 .filter(hold -> now > hold.getExpiration())
                 .forEach(hold -> releaseHold(hold));
         }
-    }
-
-    protected void expireSeats(long now) {
-        
-    }
+    } // expire()
 
 
     private class Sweeper extends Thread {
