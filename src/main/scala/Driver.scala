@@ -35,11 +35,11 @@ object Driver extends App {
   testSeatHoldMeetCapacity
 
 
-  printLabel("testSeatHoldMeetCapacityHardRelease")
-  testSeatHoldMeetCapacityHardRelease
+  printLabel("testSeatHoldMeetCapacityExplicitRelease")
+  testSeatHoldMeetCapacityExplicitRelease
 
-  printLabel("testSeatHolds")
-  testSeatHolds
+  printLabel("testSeatHoldMeetCapacityTimeOutRelease")
+  testSeatHoldMeetCapacityTimeOutRelease
 
   //exit(0)
 
@@ -84,7 +84,7 @@ object Driver extends App {
   } // testSeatHoldMeetCapacity()
 
 
-  def testSeatHoldMeetCapacityHardRelease() {
+  def testSeatHoldMeetCapacityExplicitRelease() {
     var tv: Option[Venue] = None
 
     try {
@@ -98,86 +98,35 @@ object Driver extends App {
       var seatsAvail = jtv.numSeatsAvailable(noneInt)
       assert(seatsAvail == expected, s"${seatsAvail} != ${expected}.\n")
 
-      //jtv.releaseHold(seatHold)
       seatHold.map(jtv.releaseHold(_))
       seatsAvail = jtv.numSeatsAvailable(noneInt)
       assert(seatsAvail == capacity, s"${seatsAvail} != ${capacity}.\n")
     } finally {
       tv.map(_.close)
     }
-  } // testSeatHoldMeetCapacityHardRelease()
+  } // testSeatHoldMeetCapacityExplicitRelease()
 
-
-
-
-  @deprecated("Break into smaller tests.", "2016-08-31")
-  def testSeatHolds() {
-    var tv: Venue = null
-    var seatRequest = 0
+  def testSeatHoldMeetCapacityTimeOutRelease() {
+    var tv: Option[Venue] = None
 
     try {
-      tv = Venue.testingVenue
-      val initialCapacity = tv.numSeatsAvailable(noneInt)
-      var currentCap = initialCapacity
-      var intRes = 0
-      var holdCount = 0
+      val jtv = Venue.testingVenue
+      val seatRequest = 5
+      tv = Some(jtv)
+      val capacity = jtv.numSeatsAvailable(noneInt)
+      val expected = capacity - seatRequest
 
-      // Hold #1
-      // exceed section 1 capacity
-      // seatRequest = 15
-      // val seatHold1 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
-      // assert(!seatHold1.isPresent(), s"seatHold1 should be empty.\n")
+      val seatHold = toScala(jtv.findAndHoldSeats(seatRequest, noneInt, toJava(Some(1)), email))
+      var seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"${seatsAvail} != ${expected}.\n")
 
-      // Hold #2
-      // meet section 1 capacity
-      // seatRequest = 5
-      // currentCap -= seatRequest
-      // holdCount += 1
-      // val seatHold2 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
-      // assert(seatHold2.isPresent(), s"seatHold2 should not be empty.\n")
-      // intRes = tv.numSeatsAvailable(noneInt)
-      // assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
-      // intRes = tv.holdCount()
-      // assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
-
-      // // release the hold
-      // currentCap += seatRequest
-      // holdCount -= 1
-      // tv.releaseHold(seatHold2.get)
-      // intRes = tv.numSeatsAvailable(noneInt)
-      // assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
-      // intRes = tv.holdCount()
-      // assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
-
-
-      // Hold #3
-      // meet section 1 capacity
-      seatRequest = 5
-      currentCap -= seatRequest
-      holdCount += 1
-      val seatHold3 = tv.findAndHoldSeats(seatRequest, noneInt, someInt(1), email)
-      assert(seatHold3.isPresent(), s"seatHold3 should not be empty.\n")
-      intRes = tv.numSeatsAvailable(noneInt)
-      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
-      intRes = tv.holdCount()
-      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
-
-      // Force pause, venue should release the hold
-      Thread.sleep(Defaults.SEATHOLD_LIFESPAN * 4)
-
-      currentCap += seatRequest
-      holdCount -= 1
-      intRes = tv.numSeatsAvailable(noneInt)
-      assert(intRes == currentCap, s"avalable seats ${intRes} != ${currentCap}\n")
-      intRes = tv.holdCount()
-      assert(intRes == holdCount, s"holds ${intRes} != ${holdCount}\n")
-
-
+      Thread.sleep(Defaults.SEATHOLD_LIFESPAN * 2)
+      seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == capacity, s"${seatsAvail} != ${capacity}.\n")
+    } finally {
+      tv.map(_.close)
     }
-    finally {
-      if (tv != null) { tv.close }
-    }
-  } // testSeatHolds()
+  } // testSeatHoldMeetCapacityTimeOutRelease()
 
   // ----------------------------------------
 
@@ -245,43 +194,6 @@ object Driver extends App {
     assert(resEmail == email, s"Failure on SeatHold getCustomerEmail, ${resEmail} != ${email}\n")
   } // testCreateSeatHold()
 
-  @deprecated("Being phase out", "2016-08-30 13:28")
-  def test1() {
-    val testVenue = Venue.testingVenue
-    showSeats(testVenue)
-
-    println("\n Any seats: " + testVenue.findAndHoldSeats(15, noneInt, noneInt, email))
-
-    showSeats(testVenue)
-
-    println("\nTry best level: " + testVenue.findAndHoldSeats(4, noneInt, someInt(1), email))
-
-    showSeats(testVenue)
-
-    println("\nHow about cheap seats? " + testVenue.findAndHoldSeats(5, someInt(4), noneInt, email))
-
-    showSeats(testVenue)
-
-    val cheapHold =  testVenue.findAndHoldSeats(5, someInt(4), noneInt, email)
-
-    println("\nHow about cheap seats? " + cheapHold)
-
-    showSeats(testVenue)
-
-    println("\nHow about cheap seats? " + testVenue.findAndHoldSeats(5, someInt(4), noneInt, email))
-
-    showSeats(testVenue)
-
-    println("Release hold.")
-
-    if (cheapHold.isPresent())
-      testVenue.releaseHold(cheapHold.get())
-
-    println
-
-    showSeats(testVenue)
-
-  } // test1()
 
   // -- Support functions
   def showSeats(venue: Venue) = println("Available seats: " + venue.numSeatsAvailable(noneInt))
