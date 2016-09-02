@@ -35,5 +35,9 @@ public class Seat {
 
     public void requestRelease() {
         level.releaseSeat(this);
-    }
+    } // requestRelease()
+
+    public void requestReserve() {
+        level.releaseSeat(this);
+    } // requestReserve()
 }

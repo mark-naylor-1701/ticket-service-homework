@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public class Venue implements TicketService {
 
     private ArrayList<Level> levels;
-    private CopyOnWriteArrayList<SeatHold> heldSeats = new CopyOnWriteArrayList<SeatHold>();
+    private CopyOnWriteArrayList<SeatHold> seatHolds = new CopyOnWriteArrayList<SeatHold>();
     private Optional<Sweeper> sweeper = Optional.empty();
 
     public Venue () {
@@ -111,24 +111,54 @@ public class Venue implements TicketService {
             requiredSeats -= seats.size();
         }
 
-        heldSeats.add(seatHold);
+        seatHolds.add(seatHold);
 
         return Optional.of(seatHold);
     } // findAndHoldSeats()
 
     public int holdCount() {
-        return heldSeats.size();
+        return seatHolds.size();
     } // holdCount()
 
     public String reserveSeats(int seatHoldId, String customerEmail) {
+        String code = "No Reservation.";
 
         // Find hold with id
         // Loop through the seats
         // Tell the level to reserve each seat
+        Optional<SeatHold> seatHold = seatHolds.stream()
+            .filter(hold -> hold.getId() == seatHoldId)
+            .findFirst();
 
-        // craft the comp code
-        return "*TODO*";
+        System.out.println(seatHold);
+
+        if (seatHold.isPresent()) {
+            System.out.println(seatHold.get().getId());
+        } else {
+            System.out.println("None");
+        }
+
+        // seatHold.ifPresent( (SeatHold hold) -> {
+        //         //code = confirmationCode(seatHoldId, customerEmail);
+        //         return confirmationCode(seatHoldId, customerEmail);
+        //     });
+
+        if (seatHold.isPresent()) {
+            SeatHold hold = seatHold.get();
+            hold.reserve();
+            seatHolds.remove(hold);
+            code = confirmationCode(seatHoldId, customerEmail);
+        }
+
+        // Craft the comp code
+        // return confirmationCode(seatHoldId, customerEmail);
+        return code;
     } // reserveSeats()
+
+
+    protected String confirmationCode(int seatHoldId, String customerEmail) {
+        return customerEmail + "--" + seatHoldId;
+    }
 
 
     public void releaseHold(SeatHold seatHold) {
@@ -137,7 +167,7 @@ public class Venue implements TicketService {
         // Release all the seats, as an atomic transaction.
         synchronized (this) {
             seats.stream().forEach( seat -> seat.requestRelease() );
-            heldSeats.remove(seatHold);
+            seatHolds.remove(seatHold);
         }
     } // releaseHold()
 
@@ -149,8 +179,8 @@ public class Venue implements TicketService {
     protected void expire() {
         long now = (new Date()).getTime();
 
-        synchronized (heldSeats) {
-            heldSeats.stream()
+        synchronized (seatHolds) {
+            seatHolds.stream()
                 .filter(hold -> now > hold.getExpiration())
                 .forEach(hold -> releaseHold(hold));
         }

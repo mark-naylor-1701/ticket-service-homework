@@ -46,13 +46,22 @@ public class SeatHold {
         System.out.println("Enter SeatHold::release");
 
         seats.stream().forEach(seat -> seat.requestRelease());
+        remove();
+    } // release()
 
+    public void reserve() {
+        System.out.println("SeatHold:  " + seats.size());
+        seats.stream().forEach(seat -> seat.requestReserve());
+        remove();
+        System.out.println("SeatHold:  " + seats.size());
+    } // reserve()
+
+    protected void remove() {
         for (ListIterator<Seat> seatIterator = seats.listIterator(); seatIterator.hasNext();) {
             seatIterator.next();
             seatIterator.remove();
         }
-
-    } // release()
+    } // remove()
 
     public Collection<Seat> getSeats() {
         return seats;
