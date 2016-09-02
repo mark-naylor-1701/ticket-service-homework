@@ -13,10 +13,9 @@ public class Level {
     private int rows;
     private int seatsPerRow;
 
-    // *TODO* make private again
-    /*private*/ public ArrayList<Seat> remainingSeats;
-    /*private*/ public ArrayList<Seat> heldSeats = new ArrayList<Seat>();
-    /*private*/ public ArrayList<Seat> reservedSeats = new ArrayList<Seat>();
+    public ArrayList<Seat> remainingSeats;
+    public ArrayList<Seat> heldSeats = new ArrayList<Seat>();
+    public ArrayList<Seat> reservedSeats = new ArrayList<Seat>();
 
     public Level(int id, LevelName name, MonetaryAmount price, int rows, int seatsPerRow) {
         this.id = id;
@@ -28,26 +27,37 @@ public class Level {
         remainingSeats = makeSeats();
     } // Level() - constructor
 
-    public ArrayList<Seat> holdSeats(int desired) {
-        int maxIndex = Math.min(desired, remainingSeats.size());
-
+    public ArrayList<Seat> holdNumberOfSeats(int desired) {
+        int maxIndex = Math.min(desired, numSeatsAvailable());
         ArrayList<Seat> held = new ArrayList<Seat>(remainingSeats.subList(0, maxIndex));
-        heldSeats.addAll(held);
-        remainingSeats.removeAll(held);
-        return held;
-    } // holdSeats()
 
-    public void releaseHold(Seat seat) {
+        held.stream().forEach( seat-> holdSeat(seat) );
+
+        return held;
+    } // holdNumberOfSeats()
+
+    protected void moveSeat(Seat seat, ArrayList<Seat> to, ArrayList<Seat> from) {
         synchronized (this) {
-            if (heldSeats.remove(seat)) {
-                remainingSeats.add(seat);
-            }
+            to.add(seat);
+            from.remove(seat);
         }
-    } // releaseHold()
+    } // moveSeat
+
+    public void holdSeat(Seat seat) {
+        moveSeat(seat, heldSeats, remainingSeats);
+    } // holdSeat()
+
+    public void releaseSeat(Seat seat) {
+        moveSeat(seat, remainingSeats, heldSeats);
+    } // releaseSeat()
+
+    public void reserveSeat(Seat seat) {
+        moveSeat(seat, reservedSeats, heldSeats);
+    } // reservedSeat()
 
     public String toString() {
         return id + "\t" + String.format("%-8s", name) + "\t"
-            + price + "\t" + remainingSeats.size();
+            + price + "\t" + numSeatsAvailable();
     } // toString()
 
     public int getId() {

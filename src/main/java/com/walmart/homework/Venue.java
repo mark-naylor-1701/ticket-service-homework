@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public class Venue implements TicketService {
 
     private ArrayList<Level> levels;
-    private CopyOnWriteArrayList<SeatHold> holds = new CopyOnWriteArrayList<SeatHold>();
+    private CopyOnWriteArrayList<SeatHold> heldSeats = new CopyOnWriteArrayList<SeatHold>();
     private Optional<Sweeper> sweeper = Optional.empty();
 
     public Venue () {
@@ -81,10 +81,11 @@ public class Venue implements TicketService {
             .sum();
     } // numSeatsAvailable()
 
-    public synchronized Optional<SeatHold> findAndHoldSeats(int numSeats,
-                                     Optional<Integer> minLevel,
-                                     Optional<Integer> maxLevel,
-                                     String customerEmail) {
+    public synchronized Optional<SeatHold>
+    findAndHoldSeats(int requiredSeats,
+                     Optional<Integer> minLevel,
+                     Optional<Integer> maxLevel,
+                     String customerEmail) {
 
         Stream<Level> stream = levels.stream();
 
@@ -99,44 +100,44 @@ public class Venue implements TicketService {
         int levelCount = desiredLevels.size();
         int seatCount = numSeatsAvailable(desiredLevels);
 
-        if (numSeats > seatCount) { return Optional.empty(); }
+        if (requiredSeats > seatCount) { return Optional.empty(); }
 
         SeatHold seatHold = new SeatHold(customerEmail, Optional.empty());
-        ArrayList<Seat> seats;
 
-        Iterator<Level> iterator = desiredLevels.iterator();
-
-        while (numSeats > 0 && iterator.hasNext()) {
-            Level level = iterator.next();
-            seats = level.holdSeats(numSeats);
+        for (Iterator<Level> levels = desiredLevels.iterator(); requiredSeats > 0 && levels.hasNext(); ) {
+            Level level = levels.next();
+            ArrayList<Seat> seats = level.holdNumberOfSeats(requiredSeats);
             seatHold.add(seats);
-            numSeats -= seats.size();
+            requiredSeats -= seats.size();
         }
 
-        synchronized (holds) {
-            holds.add(seatHold);
-        }
+        heldSeats.add(seatHold);
 
         return Optional.of(seatHold);
     } // findAndHoldSeats()
 
     public int holdCount() {
-        return holds.size();
-        // int size;
-        // synchronized (holds) { size = holds.size(); }
-        // return size;
+        return heldSeats.size();
     } // holdCount()
+
+    public String reserveSeats(int seatHoldId, String customerEmail) {
+
+        // Find hold with id
+        // Loop through the seats
+        // Tell the level to reserve each seat
+
+        // craft the comp code
+        return "*TODO*";
+    } // reserveSeats()
+
 
     public void releaseHold(SeatHold seatHold) {
         Collection<Seat> seats = seatHold.getSeats();
 
         // Release all the seats, as an atomic transaction.
-        synchronized (this){
-            // Each seat needs to tell its parent level to release it.
-            seats.stream().forEach((Seat s) -> s.getLevel().releaseHold(s));
-            synchronized (holds) {
-                holds.remove(seatHold);
-            }
+        synchronized (this) {
+            seats.stream().forEach( seat -> seat.requestRelease() );
+            heldSeats.remove(seatHold);
         }
     } // releaseHold()
 
@@ -148,8 +149,8 @@ public class Venue implements TicketService {
     protected void expire() {
         long now = (new Date()).getTime();
 
-        synchronized (holds) {
-            holds.stream()
+        synchronized (heldSeats) {
+            heldSeats.stream()
                 .filter(hold -> now > hold.getExpiration())
                 .forEach(hold -> releaseHold(hold));
         }

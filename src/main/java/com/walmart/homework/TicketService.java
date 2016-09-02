@@ -12,4 +12,5 @@ public interface TicketService {
                               Optional<Integer> minLevel,
                               Optional<Integer> maxLevel,
                               String customerEmail);
+    String reserveSeats(int seatHoldId, String customerEmail);
 }

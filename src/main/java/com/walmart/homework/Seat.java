@@ -32,4 +32,8 @@ public class Seat {
     public Level getLevel() {
         return level;
     } // getLevel()
+
+    public void requestRelease() {
+        level.releaseSeat(this);
+    }
 }

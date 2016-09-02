@@ -7,6 +7,7 @@ package com.walmart.homework;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.ListIterator;
 import java.util.Optional;
 
 
@@ -39,6 +40,19 @@ public class SeatHold {
     public void add(Collection<Seat> seats) {
         this.seats.addAll(seats);
     } // add()
+
+    public void release() {
+        // *TODO*
+        System.out.println("Enter SeatHold::release");
+
+        seats.stream().forEach(seat -> seat.requestRelease());
+
+        for (ListIterator<Seat> seatIterator = seats.listIterator(); seatIterator.hasNext();) {
+            seatIterator.next();
+            seatIterator.remove();
+        }
+
+    } // release()
 
     public Collection<Seat> getSeats() {
         return seats;
