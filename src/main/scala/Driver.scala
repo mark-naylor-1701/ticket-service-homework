@@ -14,17 +14,20 @@ object Driver extends App {
 
   println("Hello, Walmart testing world.")
 
-  printLabel("testCreateLevel")
-  testCreateLevel
+  printLabel("testLevelCreate")
+  testLevelCreate
 
-  printLabel("testCreateSeat")
-  testCreateSeat
+  printLabel("testSeatCreate")
+  testSeatCreate
 
-  printLabel("testCreateSeatHold")
-  testCreateSeatHold
+  printLabel("testSeatHoldCreate")
+  testSeatHoldCreate
 
-  printLabel("testCreateVenue")
-  testCreateVenue
+  printLabel("testSeatHoldRelease")
+  testSeatHoldRelease
+
+  printLabel("testVenueCreate")
+  testVenueCreate
 
 
   printLabel("testSeatHoldExceed")
@@ -36,17 +39,59 @@ object Driver extends App {
 
 
   printLabel("testSeatHoldMeetCapacityExplicitRelease")
-  testSeatHoldMeetCapacityExplicitRelease
 
-  printLabel("testSeatHoldMeetCapacityTimeOutRelease")
-  testSeatHoldMeetCapacityTimeOutRelease
 
-  //exit(0)
+  // *TODO* enable test
+  // commented out to speed test
+  // printLabel("testSeatHoldMeetCapacityTimeOutRelease")
+  // testSeatHoldMeetCapacityTimeOutRelease
+
+  
+
+  printLabel("testSeatReserve")
+  testSeatReserve
+
+
+  // end main()
 
   // -- Test functions
 
   // ----------------------------------------
   // Seat Hold tests
+
+  def testSeatReserve() {
+    var tv: Option[Venue] = None
+
+    try {
+      val jtv = Venue.testingVenue
+      val seatRequest = 5
+      tv = Some(jtv)
+      val capacity = jtv.numSeatsAvailable(noneInt)
+      val expected = capacity - seatRequest
+
+      val hold = toScala(jtv.findAndHoldSeats(seatRequest, noneInt, toJava(Some(1)), email))
+      var seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"${seatsAvail} != ${expected}.\n")
+
+
+      hold map {
+        hold => {
+          val id = hold.getId
+          val address = hold.getCustomerEmail
+          println (
+            jtv.reserveSeats(id, address)
+          )
+        }
+      }
+
+      seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"${seatsAvail} != ${expected}.\n")
+
+    } finally {
+      tv.map(_.close)
+    }
+  } // testSeatReserve()
+
 
   def testSeatHoldExceed() {
     var tv: Option[Venue] = None
@@ -63,7 +108,6 @@ object Driver extends App {
       tv.map(_.close)
     }
   } // testSeatHoldExceed()
-
 
   def testSeatHoldMeetCapacity() {
     var tv: Option[Venue] = None
@@ -82,7 +126,6 @@ object Driver extends App {
       tv.map(_.close)
     }
   } // testSeatHoldMeetCapacity()
-
 
   def testSeatHoldMeetCapacityExplicitRelease() {
     var tv: Option[Venue] = None
@@ -130,9 +173,9 @@ object Driver extends App {
 
   // ----------------------------------------
 
-  def testCreateSeat() {
+  def testSeatCreate() {
     // Seat depends on having a good level.
-    testCreateLevel
+    testLevelCreate
 
     val level = new Level(1, new LevelName("Test Name"), new MonetaryAmount(15.50), 4, 10)
     val rowNumber = new RowNumber(1)
@@ -145,9 +188,9 @@ object Driver extends App {
     assert(seat.getLevel == level, s"level ${seat.getLevel} != ${level}")
     assert(seat.getRowNumber == rowNumber, s"Field ${seat.getRowNumber} != ${rowNumber}")
     assert(seat.getSeatNumber == seatNumber, s"Field ${seat.getSeatNumber} != ${seatNumber}")
-  } // testCreateSeat()
+  } // testSeatCreate()
 
-  def testCreateLevel() {
+  def testLevelCreate() {
     val name = new LevelName("Test Name")
     val price = new MonetaryAmount(15.50)
     val rows = 4
@@ -159,9 +202,9 @@ object Driver extends App {
     assert(level.getPrice == price, s"Field ${level.getPrice} != ${price}")
     assert(level.getId == id, s"Field ${level.getId} != ${id}")
     assert(level.numSeatsAvailable == rows * seats, s"Field ${level.numSeatsAvailable} != ${rows * seats}")
-  } // testCreateLevel()
+  } // testLevelCreate()
 
-  def testCreateVenue() {
+  def testVenueCreate() {
     var tv: Venue = null
     try {
       tv = Venue.testingVenue
@@ -176,9 +219,9 @@ object Driver extends App {
     finally {
       if (tv != null) { tv.close }
     }
-  } // testCreateVenue()
+  } // testVenueCreate()
 
-  def testCreateSeatHold() {
+  def testSeatHoldCreate() {
     val none: Optional[Collection[Seat]] = Optional.empty()
     val sh = new SeatHold(email, none)
 
@@ -192,7 +235,33 @@ object Driver extends App {
 
     val resEmail = sh.getCustomerEmail
     assert(resEmail == email, s"Failure on SeatHold getCustomerEmail, ${resEmail} != ${email}\n")
-  } // testCreateSeatHold()
+  } // testSeatHoldCreate()
+
+  def testSeatHoldRelease() {
+    val level = new Level(1, new LevelName("Test Name"), new MonetaryAmount(15.50), 4, 10)
+    val rowNumber = new RowNumber(1)
+    val seats = (1 to 3) map (sn => {new Seat(rowNumber, new SeatNumber(new Integer(sn)), level)})
+    val sh = new SeatHold(email, toJava(Some(seats.asJava)))
+
+    seats map { seat => level}
+
+    println(s"\tSeats ${level.numSeatsAvailable}")
+
+    //println(sh.getExpiration)
+    val now = new Date
+    val expiration = sh.getExpiration
+    assert(expiration > now.getTime, s"Field ${expiration} <= ${now}")
+
+    var size = sh.getSeats.size
+    assert(size == seats.size, s"Failure on SeatHold getSeats, ${size} != ${seats.size}\n") 
+
+    val resEmail = sh.getCustomerEmail
+    assert(resEmail == email, s"Failure on SeatHold getCustomerEmail, ${resEmail} != ${email}\n")
+
+    sh.release
+    size = sh.getSeats.size
+    assert(size == 0, s"Failure on SeatHold getSeats, ${size} != 0\n") 
+  } // testSeatHoldRelease()
 
 
   // -- Support functions
