@@ -38,6 +38,6 @@ public class Seat {
     } // requestRelease()
 
     public void requestReserve() {
-        level.releaseSeat(this);
+        level.reserveSeat(this);
     } // requestReserve()
 }
