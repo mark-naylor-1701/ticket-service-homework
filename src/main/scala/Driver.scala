@@ -67,9 +67,8 @@ object Driver extends App {
   testVenueCreate
 
 
-  // *TODO* revive test
-  // printLabel("testVenueSeatReserve")
-  // testVenueSeatReserve
+  printLabel("testVenueSeatReserve")
+  testVenueSeatReserve
 
 
   // end main()
