@@ -1,8 +1,12 @@
 // author: Mark W. Naylor
-// file:   Driver.scala
-// date:   2016-Aug-26
+// file:   Venue.java
+// date:   2016-Aug-28
+
+package com.walmart.homework
 
 import scala.collection.JavaConverters._
+
+import com.walmart.homework._
 
 import java.util.{ArrayList, Collection, Date, Optional}
 
@@ -270,7 +274,7 @@ object Driver extends App {
   } // testSeatCreate()
 
   protected def makeLevel() = {
-    val name = new LevelName("Test Name")
+    val name = new com.walmart.homework.LevelName("Test Name")
     val price = new MonetaryAmount(15.50)
     val rows = 4
     val seats = 10
