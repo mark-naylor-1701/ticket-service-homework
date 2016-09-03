@@ -70,6 +70,8 @@ object Driver extends App {
   printLabel("testVenueSeatReserve")
   testVenueSeatReserve
 
+  printLabel("testVenueMultiSeatReserve")
+  testVenueMultiSeatReserve
 
   // end main()
 
@@ -77,6 +79,61 @@ object Driver extends App {
 
   // ----------------------------------------
   // Seat Hold tests
+
+  def testVenueMultiSeatReserve() {
+    var tv: Option[Venue] = None
+
+    try {
+      val jtv = Venue.testingVenue
+      var seatRequest = 5
+      tv = Some(jtv)
+      val capacity = jtv.numSeatsAvailable(noneInt)
+      var expected = capacity - seatRequest
+
+      var hold = toScala(jtv.findAndHoldSeats(seatRequest, noneInt, toJava(Some(1)), email))
+      var seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"Before reserve #1, wrong # of holds: ${seatsAvail} != ${expected}.\n")
+
+      var holds = jtv.holdCount
+      assert(holds == 1, s"${holds} != ${1}\n")
+
+      hold map {
+        hold => {
+          val id = hold.getId
+          val address = hold.getCustomerEmail
+          jtv.reserveSeats(id, address)}}
+
+      holds = jtv.holdCount
+      assert(holds == 0, s"After reserve #1, wrong # of holds: ${holds} != ${0}\n")
+
+      seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"After reserve #1, wrong # of seats: ${seatsAvail} != ${expected}.\n")
+
+      seatRequest = 20
+      expected -= seatRequest
+      hold = toScala(jtv.findAndHoldSeats(seatRequest, noneInt, noneInt, email))
+
+      seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"Before reserve #2, wrong # of holds: ${seatsAvail} != ${expected}.\n")
+
+      holds = jtv.holdCount
+      assert(holds == 1, s"${holds} != ${1}\n")
+
+      hold map {
+        hold => {
+          val id = hold.getId
+          val address = hold.getCustomerEmail
+          jtv.reserveSeats(id, address)}}
+
+      holds = jtv.holdCount
+      assert(holds == 0, s"After reserve #2, wrong # of holds: ${holds} != ${0}\n")
+      seatsAvail = jtv.numSeatsAvailable(noneInt)
+      assert(seatsAvail == expected, s"After reserve #2, wrong # of holds: ${seatsAvail} != ${expected}.\n")
+
+    } finally {
+      tv.map(_.close)
+    }
+  } // testVenueMultiSeatReserve()
 
   def testVenueSeatReserve() {
     var tv: Option[Venue] = None
@@ -99,9 +156,7 @@ object Driver extends App {
         hold => {
           val id = hold.getId
           val address = hold.getCustomerEmail
-          println (
-            jtv.reserveSeats(id, address)
-          )
+          jtv.reserveSeats(id, address)
         }
       }
 
@@ -304,7 +359,6 @@ object Driver extends App {
     val none: Optional[Collection[Seat]] = Optional.empty()
     val sh = new SeatHold(email, none)
 
-    //println(sh.getExpiration)
     val now = new Date
     val expiration = sh.getExpiration
     assert(expiration > now.getTime, s"Field ${expiration} <= ${now}")
@@ -324,9 +378,6 @@ object Driver extends App {
 
     seats map { seat => level}
 
-    println(s"\tSeats ${level.numSeatsAvailable}")
-
-    //println(sh.getExpiration)
     val now = new Date
     val expiration = sh.getExpiration
     assert(expiration > now.getTime, s"Field ${expiration} <= ${now}")
@@ -350,9 +401,6 @@ object Driver extends App {
 
     seats map { seat => level}
 
-    println(s"\tSeats ${level.numSeatsAvailable}")
-
-    //println(sh.getExpiration)
     val now = new Date
     val expiration = sh.getExpiration
     assert(expiration > now.getTime, s"Field ${expiration} <= ${now}")
