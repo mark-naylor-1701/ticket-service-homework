@@ -9,13 +9,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Venue implements TicketService {
@@ -97,7 +95,6 @@ public class Venue implements TicketService {
         }
 
         ArrayList<Level> desiredLevels = new ArrayList<Level>(stream.collect(Collectors.toList()));
-        int levelCount = desiredLevels.size();
         int seatCount = numSeatsAvailable(desiredLevels);
 
         if (requiredSeats > seatCount) { return Optional.empty(); }
