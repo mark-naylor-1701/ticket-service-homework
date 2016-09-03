@@ -123,25 +123,9 @@ public class Venue implements TicketService {
     public String reserveSeats(int seatHoldId, String customerEmail) {
         String code = "No Reservation.";
 
-        // Find hold with id
-        // Loop through the seats
-        // Tell the level to reserve each seat
         Optional<SeatHold> seatHold = seatHolds.stream()
             .filter(hold -> hold.getId() == seatHoldId)
             .findFirst();
-
-        System.out.println(seatHold);
-
-        if (seatHold.isPresent()) {
-            System.out.println(seatHold.get().getId());
-        } else {
-            System.out.println("None");
-        }
-
-        // seatHold.ifPresent( (SeatHold hold) -> {
-        //         //code = confirmationCode(seatHoldId, customerEmail);
-        //         return confirmationCode(seatHoldId, customerEmail);
-        //     });
 
         if (seatHold.isPresent()) {
             SeatHold hold = seatHold.get();
@@ -150,8 +134,6 @@ public class Venue implements TicketService {
             code = confirmationCode(seatHoldId, customerEmail);
         }
 
-        // Craft the comp code
-        // return confirmationCode(seatHoldId, customerEmail);
         return code;
     } // reserveSeats()
 
@@ -197,8 +179,6 @@ public class Venue implements TicketService {
                 catch (InterruptedException e) {
                     break;
                 }
-
-                System.out.println(getName() +" wake and process");
             }
         }
     } // private class Sweeper
