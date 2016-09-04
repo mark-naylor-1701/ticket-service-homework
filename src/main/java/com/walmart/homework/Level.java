@@ -13,9 +13,9 @@ public class Level {
     private int rows;
     private int seatsPerRow;
 
-    public ArrayList<Seat> remainingSeats;
-    public ArrayList<Seat> heldSeats = new ArrayList<Seat>();
-    public ArrayList<Seat> reservedSeats = new ArrayList<Seat>();
+    private ArrayList<Seat> remainingSeats;
+    private ArrayList<Seat> heldSeats = new ArrayList<Seat>();
+    private ArrayList<Seat> reservedSeats = new ArrayList<Seat>();
 
     public Level(int id, LevelName name, MonetaryAmount price, int rows, int seatsPerRow) {
         this.id = id;

@@ -58,6 +58,10 @@ public class SeatHold {
         }
     } // remove()
 
+    public int size() {
+        return seats.size();
+    }
+
     public Collection<Seat> getSeats() {
         return seats;
     } // getSets()
