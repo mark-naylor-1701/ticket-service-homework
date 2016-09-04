@@ -59,26 +59,24 @@ public class LevelTest {
         count = level.numSeatsAvailable();
         assertEquals("Wrong number of seats after hold release.\n", count, intialCount);
     }
-    
+
 
     @Test
     public final void testLevelReserve() {
-        fail("Not implemented\n.");
-        
-        // val level = makeLevel;
-        // val seatCount = 5;
-        // val intialCount = level.numSeatsAvailable;
-        // val seats = level.holdNumberOfSeats(seatCount);
-        // val expected = intialCount - seatCount;
+        Level level = makeLevel();
+        int seatsRequired = 5;
+        int intialCount = level.numSeatsAvailable();
+        Collection<Seat> seats = level.holdNumberOfSeats(seatsRequired);
+        int expected = intialCount - seatsRequired;
 
-        // var count = level.numSeatsAvailable;
-        // assert(count == expected, s"Field ${count} != ${expected}");
+        int count = level.numSeatsAvailable();
+        assertEquals("Wrong number of seats after hold.\n", count, expected);
 
-        // seats.asScala.map(level.reserveSeat(_));
-        // count = level.numSeatsAvailable;
-        // assert(count == expected, s"Field ${count} != ${expected}");
+        seats.stream().forEach( seat -> level.reserveSeat(seat) );
+        count = level.numSeatsAvailable();
+        assertEquals("Wrong number of seats after release.\n", count, expected);
 
-  } // testLevelReserve()
+  }
 
     protected Level makeLevel() {
         return new Level(id, name, price, rows, seats);
