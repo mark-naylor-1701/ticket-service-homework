@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Venue implements TicketService {
+public class Venue implements TicketService, AutoCloseable {
 
     private ArrayList<Level> levels;
     private CopyOnWriteArrayList<SeatHold> seatHolds = new CopyOnWriteArrayList<SeatHold>();
