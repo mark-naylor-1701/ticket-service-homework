@@ -4,15 +4,14 @@ import java.util.Collection;
 
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class LevelTest {
-    LevelName name = new LevelName("Test Name");
-    MonetaryAmount price = new MonetaryAmount(15.50);
-    int rows = 4;
-    int seats = 10;
-    int id = 1;
+    private static LevelName name = new LevelName("Test Name");
+    private static MonetaryAmount price = new MonetaryAmount(15.50);
+    private static int rows = 4;
+    private static int seats = 10;
+    private static int id = 1;
 
 
     @Test
@@ -47,17 +46,19 @@ public class LevelTest {
     public final void testLevelReleaseSeats() {
         Level level = makeLevel();
         int seatsRequired = 5;
-        int intialCount = level.numSeatsAvailable();
-        int expected = intialCount - seatsRequired;
+        int initialCount = level.numSeatsAvailable();
+        int expected = initialCount - seatsRequired;
         Collection<Seat> seats = level.holdNumberOfSeats(seatsRequired);
 
-        int count = level.numSeatsAvailable();
-        assertEquals("Wrong number of seats after hold request.\n", count, expected);
+        int seatsAvailable = level.numSeatsAvailable();
+        assertEquals("Wrong number of seats after hold request.\n",
+                     seatsAvailable,
+                     initialCount - seatsRequired);
 
         // seats.asScala.map(level.releaseSeat(_));
         seats.stream().forEach( seat -> level.releaseSeat(seat) );
-        count = level.numSeatsAvailable();
-        assertEquals("Wrong number of seats after hold release.\n", count, intialCount);
+        seatsAvailable = level.numSeatsAvailable();
+        assertEquals("Wrong number of seats after hold release.\n", seatsAvailable, initialCount);
     }
 
 
@@ -65,9 +66,9 @@ public class LevelTest {
     public final void testLevelReserve() {
         Level level = makeLevel();
         int seatsRequired = 5;
-        int intialCount = level.numSeatsAvailable();
+        int initialCount = level.numSeatsAvailable();
         Collection<Seat> seats = level.holdNumberOfSeats(seatsRequired);
-        int expected = intialCount - seatsRequired;
+        int expected = initialCount - seatsRequired;
 
         int count = level.numSeatsAvailable();
         assertEquals("Wrong number of seats after hold.\n", count, expected);
@@ -76,9 +77,9 @@ public class LevelTest {
         count = level.numSeatsAvailable();
         assertEquals("Wrong number of seats after release.\n", count, expected);
 
-  }
+    }
 
-    protected Level makeLevel() {
+    public static Level makeLevel() {
         return new Level(id, name, price, rows, seats);
     }
 
