@@ -4,7 +4,13 @@
 
 package com.walmart.homework;
 
-abstract public class TypeExtender<T> implements Valuable<T> {
+/**
+ * Basic types (ex. Integer) don't provide enough type safety.  Type
+ * extension allows the compiler to performe semantic checks upon
+ * code.
+ *
+ */
+abstract public class TypeExtender<T> implements Value<T> {
     private T _value;
 
     public TypeExtender(T t) {
