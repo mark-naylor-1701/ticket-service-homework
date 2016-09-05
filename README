@@ -4,14 +4,14 @@ Implement a simple ticket service that facilitates the discovery,
 temporary hold, and final reservation of seats within a high-demand
 performance venue.
 
-Assumption: JDK 1.8 will be avalable for the build process.  Solution
+Assumption: JDK 1.8 will be available for the build process.  Solution
 relies upon API elements that do not exist in prior versions.
 
 
 gradle is the project build tool.  Version 2.12 was used for this
-project.  If a different version is installed on the buld system, use
-the includede gradlew (or gradlew.bat).  While the default installd
-gradle may work, build instruction will use the *nix ./gradlew
+project.  If a different version is installed on the build system, use
+the included gradlew (or gradlew.bat).  While the default installed
+gradle may work, build instructions will use the *nix ./gradlew
 variant.
 
 Venue.java contains the primary class that ties all the others together.
