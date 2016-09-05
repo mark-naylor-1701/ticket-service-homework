@@ -72,8 +72,8 @@ public class SeatHoldTest {
         SeatHold seatHold = new SeatHold(email, Optional.of(seats));
 
         assertEquals("Wrong number of seats in the hold.\n",
-                     seatHold.size(),
-                     desiredSeats);
+                     desiredSeats,
+                     seatHold.size());
 
 
         seatHold.reserve();
