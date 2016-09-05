@@ -1,0 +1,31 @@
+*Ticket Service Homework*
+
+Implement a simple ticket service that facilitates the discovery,
+temporary hold, and final reservation of seats within a high-demand
+performance venue.
+
+Assumption: JDK 1.8 will be avalable for the build process.  Solution
+relies upon API elements that do not exist in prior versions.
+
+
+gradle is the project build tool.  Version 2.12 was used for this
+project.  If a different version is installed on the buld system, use
+the includede gradlew (or gradlew.bat).  While the default installd
+gradle may work, build instruction will use the *nix ./gradlew
+variant.
+
+
+To only compile the Java code:
+./gradlew compileJava
+
+To compile Java tests, Java code if needed:
+./gradlew compileTestJava
+
+To run tests, compiling source and tests if needed:
+./gradlew test
+
+To assemble classes and create jars, compiling and testing as needed:
+./gradlew build
+
+To create documentation, compiling as needed:
+./gradlew javadoc
