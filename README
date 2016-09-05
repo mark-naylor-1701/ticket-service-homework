@@ -14,6 +14,8 @@ the includede gradlew (or gradlew.bat).  While the default installd
 gradle may work, build instruction will use the *nix ./gradlew
 variant.
 
+Venue.java contains the primary class that ties all the others together.
+
 
 To only compile the Java code:
 ./gradlew compileJava
